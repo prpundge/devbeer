@@ -1,0 +1,24 @@
+<idea-plugin>
+    <id>com.plugin.springprops.viewer</id>
+    <name>Spring Boot Property Viewer</name>
+    <vendor email="support@example.com" url="http://example.com">Open Source</vendor>
+
+    <description><![CDATA[
+      Shows resolved Spring Boot property values directly in the editor as inlay hints for @Value and @ConfigurationProperties.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.properties</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.declarativeInlayProvider 
+            language="JAVA" 
+            isEnabledByDefault="true"
+            implementationClass="com.plugin.springprops.SpringValueInlayProvider" 
+            providerId="spring.boot.property.hints" 
+            bundle="messages.SpringPropsBundle"
+            nameKey="provider.name"
+            group="TYPES_GROUP" />
+    </extensions>
+</idea-plugin>
