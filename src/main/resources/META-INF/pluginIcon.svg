@@ -1,0 +1,24 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="duBg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4F46E5"/>
+      <stop offset="0.55" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="38" height="38" rx="9" fill="url(#duBg)"/>
+  <rect x="1.5" y="1.5" width="37" height="37" rx="8.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18"/>
+
+  <g stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- left brace -->
+    <path d="M14.5 9.5c-2.6 0-2.6 2.4-2.6 4.4 0 3-2.9 6.1-2.9 6.1s2.9 3.1 2.9 6.1c0 2 0 4.4 2.6 4.4"/>
+    <!-- right brace -->
+    <path d="M25.5 9.5c2.6 0 2.6 2.4 2.6 4.4 0 3 2.9 6.1 2.9 6.1s-2.9 3.1-2.9 6.1c0 2 0 4.4-2.6 4.4"/>
+    <!-- compare arrows -->
+    <path d="M16.4 17.1h7.2"/>
+    <path d="M21.4 14.9l2.2 2.2-2.2 2.2"/>
+    <path d="M23.6 24.1h-7.2"/>
+    <path d="M18.6 21.9l-2.2 2.2 2.2 2.2"/>
+  </g>
+</svg>

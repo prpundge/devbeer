@@ -16,3 +16,12 @@
 
 # Logs
 *.log
+
+# Secrets — the Marketplace publish token is read from the JETBRAINS_PUBLISH_TOKEN
+# environment variable and must never be committed.
+local.properties
+gradle-local.properties
+.env
+.env.*
+*.token
+secrets.*
