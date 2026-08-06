@@ -1,0 +1,16 @@
+<idea-plugin>
+    <!--
+      Loaded only when com.intellij.modules.java is available. Everything else in the
+      plugin works in any JetBrains IDE; only the Spring inlay hints need Java PSI.
+    -->
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.declarativeInlayProvider
+            language="JAVA"
+            isEnabledByDefault="true"
+            implementationClass="com.devutility.springprops.SpringValueInlayProvider"
+            providerId="dev.utility.spring.property.hints"
+            bundle="messages.DevUtilityBundle"
+            nameKey="inlay.provider.name"
+            group="VALUES_GROUP"/>
+    </extensions>
+</idea-plugin>
