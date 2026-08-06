@@ -1,24 +1,149 @@
 <idea-plugin>
+    <!-- id / name / version / vendor / idea-version are patched in by build.gradle.kts -->
     <id>com.plugin.springprops.viewer</id>
-    <name>Spring Boot Property Viewer</name>
-    <vendor email="support@example.com" url="http://example.com">Open Source</vendor>
+    <name>Dev Utility</name>
 
     <description><![CDATA[
-      Shows resolved Spring Boot property values directly in the editor as inlay hints for @Value and @ConfigurationProperties.
+      <h2>Dev Utility &mdash; everyday developer tools, inside your IDE</h2>
+      <p>
+        A grab-bag of the small utilities you keep leaving the IDE for. No web tools,
+        no pasting company config into a random online diff site, no context switch.
+      </p>
+
+      <h3>Property &amp; YAML File Compare</h3>
+      <p>
+        Compare two configuration files key-by-key &mdash; <code>.properties</code> against
+        <code>.properties</code>, YAML against YAML, or <b>.properties against YAML</b>, because
+        both are flattened to the same dotted key space first.
+      </p>
+      <ul>
+        <li>Interactive table: every key with its left value, right value and status
+            (<b>identical</b>, <b>different</b>, <b>only on the left</b>, <b>only on the right</b>).</li>
+        <li>Live filtering &mdash; search by key or value, or show only the differences.</li>
+        <li>Double-click any cell to jump straight to that key's line in the source file.</li>
+        <li>Open a normalized side-by-side view in the IDE's own diff editor, so YAML and
+            .properties line up even when the original files look nothing alike.</li>
+        <li>Raw file diff in the same editor when you want the literal text comparison.</li>
+        <li>Options for case-insensitive and whitespace-insensitive value comparison.</li>
+        <li>Copy or save a report of the differences.</li>
+        <li>Right-click two files in the Project view &rarr; <b>Dev Utility | Compare Property Files</b>.</li>
+      </ul>
+
+      <h3>String Toolbox</h3>
+      <p>60+ text transformations with a live preview, in one tool window.</p>
+      <ul>
+        <li><b>Case</b> &mdash; camelCase, PascalCase, snake_case, CONSTANT_CASE, kebab-case, dot.case, Title Case, Sentence case, swap case.</li>
+        <li><b>Encode / decode</b> &mdash; Base64 (standard + URL-safe), URL, HTML entities, hex, Unicode escapes.</li>
+        <li><b>Hash</b> &mdash; MD5, SHA-1, SHA-256, SHA-512, CRC32.</li>
+        <li><b>JSON / XML</b> &mdash; pretty print, minify, escape as a Java string, JWT decode.</li>
+        <li><b>Lines</b> &mdash; sort, natural sort, reverse, deduplicate, trim, number, join, split, wrap for a SQL <code>IN</code> clause.</li>
+        <li><b>Config</b> &mdash; convert <code>.properties</code> to YAML and back, flatten and sort keys.</li>
+        <li><b>Time / IDs</b> &mdash; epoch &harr; ISO-8601, UUID generation.</li>
+        <li>Transform the current editor selection in place: right-click &rarr; <b>Transform Selection&hellip;</b></li>
+      </ul>
+
+      <h3>Spring Boot Property Hints <em>(Java IDEs only)</em></h3>
+      <p>
+        The original feature of this plugin, still here and improved. Resolved property
+        values appear as inlay hints right next to the code:
+      </p>
+      <ul>
+        <li><code>@Value("${my.prop}")</code> shows the value found in each profile's config file.</li>
+        <li><code>@ConfigurationProperties(prefix = "&hellip;")</code> shows how many keys bind under the prefix,
+            and each field in the class shows its own resolved value.</li>
+        <li>Relaxed binding aware &mdash; <code>maxPoolSize</code> matches <code>max-pool-size</code>,
+            <code>max_pool_size</code> and <code>maxpoolsize</code>.</li>
+        <li>Falls back to the inline default in <code>${my.prop:fallback}</code> when nothing is configured.</li>
+      </ul>
+
+      <p>
+        The compare and string modules run in every JetBrains IDE. The Spring inlay hints
+        load only when Java support is present.
+      </p>
     ]]></description>
 
+    <change-notes><![CDATA[
+      <h3>2.0.0</h3>
+      <p><b>The plugin is now "Dev Utility"</b> &mdash; a home for everyday developer tools rather than a single-feature plugin.</p>
+      <ul>
+        <li><b>New:</b> Property &amp; YAML File Compare tool window, with an interactive
+            key-by-key table, jump-to-source, and normalized/raw side-by-side diff in the IDE's diff editor.</li>
+        <li><b>New:</b> String Toolbox tool window with 60+ transformations and live preview.</li>
+        <li><b>New:</b> <i>Transform Selection&hellip;</i> editor action.</li>
+        <li><b>New:</b> Tools menu and Project view actions.</li>
+        <li><b>Improved:</b> The YAML reader is a real indentation parser now &mdash; nested maps,
+            lists, multi-document files, block scalars and flow collections are all handled.
+            The previous version silently missed most nested keys.</li>
+        <li><b>Improved:</b> <code>@ConfigurationProperties</code> is actually implemented, including
+            per-field hints and relaxed binding.</li>
+        <li><b>Improved:</b> Property lookups are cached per project instead of re-scanning every
+            config file on every inlay hint, which made large projects crawl.</li>
+        <li><b>Improved:</b> Works in non-Java IDEs; Java support is now an optional dependency.</li>
+      </ul>
+      <h3>1.0.0</h3>
+      <ul><li>Initial release: Spring Boot <code>@Value</code> inlay hints.</li></ul>
+    ]]></change-notes>
+
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.java</depends>
-    <depends>com.intellij.properties</depends>
+    <depends optional="true" config-file="devutility-java.xml">com.intellij.modules.java</depends>
+
+    <resource-bundle>messages.DevUtilityBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.declarativeInlayProvider 
-            language="JAVA" 
-            isEnabledByDefault="true"
-            implementationClass="com.plugin.springprops.SpringValueInlayProvider" 
-            providerId="spring.boot.property.hints" 
-            bundle="messages.SpringPropsBundle"
-            nameKey="provider.name"
-            group="TYPES_GROUP" />
+        <toolWindow id="Property Compare"
+                    anchor="bottom"
+                    icon="/icons/compare13.svg"
+                    factoryClass="com.devutility.compare.PropertyCompareToolWindowFactory"/>
+
+        <toolWindow id="String Toolbox"
+                    anchor="right"
+                    icon="/icons/strings13.svg"
+                    factoryClass="com.devutility.strings.StringToolboxToolWindowFactory"/>
+
+        <notificationGroup id="Dev Utility" displayType="BALLOON"/>
     </extensions>
+
+    <actions>
+        <group id="DevUtility.ToolsMenu" text="Dev Utility" popup="true" icon="/icons/devutility13.svg">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+
+            <action id="DevUtility.OpenCompare"
+                    class="com.devutility.compare.OpenPropertyCompareAction"
+                    icon="/icons/compare13.svg"
+                    text="Compare Property Files..."
+                    description="Compare two .properties or YAML files key by key"/>
+
+            <action id="DevUtility.OpenToolbox"
+                    class="com.devutility.strings.OpenStringToolboxAction"
+                    icon="/icons/strings13.svg"
+                    text="String Toolbox"
+                    description="Open the string transformation toolbox"/>
+        </group>
+
+        <group id="DevUtility.ProjectViewGroup" text="Dev Utility" popup="true" icon="/icons/devutility13.svg">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+
+            <action id="DevUtility.CompareSelectedFiles"
+                    class="com.devutility.compare.CompareSelectedPropertyFilesAction"
+                    icon="/icons/compare13.svg"
+                    text="Compare Property Files"
+                    description="Compare the selected configuration files key by key"/>
+        </group>
+
+        <action id="DevUtility.TransformSelection"
+                class="com.devutility.strings.TransformSelectionAction"
+                icon="/icons/strings13.svg"
+                text="Transform Selection..."
+                description="Apply a Dev Utility string transformation to the current selection">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="DevUtility.SendSelectionToToolbox"
+                class="com.devutility.strings.SendSelectionToToolboxAction"
+                icon="/icons/strings13.svg"
+                text="Send Selection to String Toolbox"
+                description="Open the String Toolbox with the current selection as input">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
