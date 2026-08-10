@@ -4,7 +4,6 @@ import com.devutility.props.PropertyFileReader
 import com.devutility.props.PropertyFileScanner
 import com.devutility.props.PropertySnapshot
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 
@@ -95,6 +94,10 @@ class SpringPropertyIndex(private val project: Project) {
             (name.endsWith(".yml") || name.endsWith(".yaml") || name.endsWith(".properties"))
 
     companion object {
-        fun getInstance(project: Project): SpringPropertyIndex = project.service()
+        // getService(Class) rather than the reified project.service<T>() helper: the Kotlin
+        // extension inlines a call to ServicesKt.serviceNotFoundError, which does not exist
+        // before 2024.1 and would throw NoSuchMethodError on our 2023.3 floor.
+        fun getInstance(project: Project): SpringPropertyIndex =
+            project.getService(SpringPropertyIndex::class.java)
     }
 }

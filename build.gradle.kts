@@ -49,6 +49,9 @@ intellijPlatform {
     // locally is cheaper than failing there.
     pluginVerification {
         ides {
+            // The oldest build we claim to support. Verify it explicitly rather than
+            // trusting recommended(), which does not necessarily include the floor.
+            ide(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
             recommended()
         }
     }

@@ -1,21 +1,36 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="duBgDark" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6366F1"/>
-      <stop offset="0.55" stop-color="#3B82F6"/>
-      <stop offset="1" stop-color="#22D3EE"/>
+    <linearGradient id="dbBgDark" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#51688F"/>
+      <stop offset="1" stop-color="#1D293D"/>
+    </linearGradient>
+    <linearGradient id="dbBeerDark" x1="0" y1="15" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE594"/>
+      <stop offset="1" stop-color="#F9A825"/>
     </linearGradient>
   </defs>
 
-  <rect x="1" y="1" width="38" height="38" rx="9" fill="url(#duBgDark)"/>
-  <rect x="1.5" y="1.5" width="37" height="37" rx="8.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.28"/>
+  <rect x="1" y="1" width="38" height="38" rx="9" fill="url(#dbBgDark)"/>
+  <rect x="1.5" y="1.5" width="37" height="37" rx="8.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.26"/>
 
-  <g stroke="#0B1020" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M14.5 9.5c-2.6 0-2.6 2.4-2.6 4.4 0 3-2.9 6.1-2.9 6.1s2.9 3.1 2.9 6.1c0 2 0 4.4 2.6 4.4"/>
-    <path d="M25.5 9.5c2.6 0 2.6 2.4 2.6 4.4 0 3 2.9 6.1 2.9 6.1s-2.9 3.1-2.9 6.1c0 2 0 4.4-2.6 4.4"/>
-    <path d="M16.4 17.1h7.2"/>
-    <path d="M21.4 14.9l2.2 2.2-2.2 2.2"/>
-    <path d="M23.6 24.1h-7.2"/>
-    <path d="M18.6 21.9l-2.2 2.2 2.2 2.2"/>
+  <!-- handle -->
+  <path d="M25.6 19.6h2.1a3.4 3.4 0 0 1 0 6.8h-2.1"
+        stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" fill="none"/>
+
+  <!-- glass -->
+  <rect x="10.4" y="15" width="15.2" height="17" rx="2.4" fill="url(#dbBeerDark)"/>
+  <rect x="10.4" y="15" width="15.2" height="17" rx="2.4" fill="none" stroke="#FFFFFF" stroke-width="1.7"/>
+
+  <!-- bubbles -->
+  <circle cx="14.8" cy="20.6" r="1.15" fill="#FFFFFF" fill-opacity="0.55"/>
+  <circle cx="19.7" cy="24.7" r="1.45" fill="#FFFFFF" fill-opacity="0.46"/>
+  <circle cx="15.3" cy="27.4" r="0.95" fill="#FFFFFF" fill-opacity="0.42"/>
+
+  <!-- foam -->
+  <g fill="#FFFFFF">
+    <circle cx="13.6" cy="13.3" r="3.05"/>
+    <circle cx="18.0" cy="11.7" r="3.55"/>
+    <circle cx="22.4" cy="13.3" r="3.05"/>
+    <rect x="10.4" y="13.1" width="15.2" height="3.5" rx="1.6"/>
   </g>
 </svg>

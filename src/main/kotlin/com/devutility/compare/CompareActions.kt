@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.VirtualFile
 
-/** Tools | Dev Utility | Compare Property Files… */
+/** Tools | DevBeer | Compare Property Files… */
 class OpenPropertyCompareAction : AnAction(), DumbAware {
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT

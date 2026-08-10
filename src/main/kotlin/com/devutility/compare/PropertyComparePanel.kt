@@ -411,7 +411,7 @@ class PropertyComparePanel(private val project: Project) : SimpleToolWindowPanel
         val keys = (left.keys + right.keys).sorted()
         val factory = DiffContentFactory.getInstance()
         val request = SimpleDiffRequest(
-            "Dev Utility — normalized comparison",
+            "DevBeer — normalized comparison",
             factory.create(project, PropertyDiffEngine.normalize(left, keys), PlainTextFileType.INSTANCE),
             factory.create(project, PropertyDiffEngine.normalize(right, keys), PlainTextFileType.INSTANCE),
             left.displayName,
@@ -425,7 +425,7 @@ class PropertyComparePanel(private val project: Project) : SimpleToolWindowPanel
         val rightFile = selectedFile(rightCombo) ?: return
         val factory = DiffContentFactory.getInstance()
         val request = SimpleDiffRequest(
-            "Dev Utility — raw file comparison",
+            "DevBeer — raw file comparison",
             factory.create(project, leftFile),
             factory.create(project, rightFile),
             leftFile.name,
