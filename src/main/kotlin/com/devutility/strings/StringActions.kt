@@ -13,9 +13,9 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.SimpleListCellRenderer
 import javax.swing.JList
 
-private const val NOTIFICATION_GROUP = "Dev Utility"
+private const val NOTIFICATION_GROUP = "DevBeer"
 
-/** Tools | Dev Utility | String Toolbox */
+/** Tools | DevBeer | String Toolbox */
 class OpenStringToolboxAction : AnAction(), DumbAware {
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
@@ -107,7 +107,7 @@ class TransformSelectionAction : AnAction(), DumbAware {
             return
         }
 
-        WriteCommandAction.runWriteCommandAction(project, "Transform Selection: ${transform.title}", "DevUtility", {
+        WriteCommandAction.runWriteCommandAction(project, "Transform Selection: ${transform.title}", "DevBeer", {
             editor.document.replaceString(start, end, result)
         })
     }

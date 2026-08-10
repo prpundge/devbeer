@@ -53,7 +53,7 @@ class StringTransformsTest {
 
     @Test
     fun `hex round trips`() {
-        assertEquals("Dev Utility", run("hex-decode", run("hex-encode", "Dev Utility")))
+        assertEquals("DevBeer", run("hex-decode", run("hex-encode", "DevBeer")))
     }
 
     @Test

@@ -264,7 +264,7 @@ class StringToolboxPanel(private val project: Project) : SimpleToolWindowPanel(t
         val start = if (model.hasSelection()) model.selectionStart else 0
         val end = if (model.hasSelection()) model.selectionEnd else editor.document.textLength
         val replacement = output.text
-        WriteCommandAction.runWriteCommandAction(project, "Apply Dev Utility Transformation", "DevUtility", {
+        WriteCommandAction.runWriteCommandAction(project, "Apply DevBeer Transformation", "DevBeer", {
             editor.document.replaceString(start, end, replacement)
         })
     }

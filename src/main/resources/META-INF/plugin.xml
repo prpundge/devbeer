@@ -1,10 +1,10 @@
 <idea-plugin>
     <!-- id / name / version / vendor / idea-version are patched in by build.gradle.kts -->
     <id>com.plugin.springprops.viewer</id>
-    <name>Dev Utility</name>
+    <name>DevBeer</name>
 
     <description><![CDATA[
-      <h2>Dev Utility &mdash; everyday developer tools, inside your IDE</h2>
+      <h2>DevBeer &mdash; everyday developer tools, inside your IDE</h2>
       <p>
         A grab-bag of the small utilities you keep leaving the IDE for. No web tools,
         no pasting company config into a random online diff site, no context switch.
@@ -26,7 +26,7 @@
         <li>Raw file diff in the same editor when you want the literal text comparison.</li>
         <li>Options for case-insensitive and whitespace-insensitive value comparison.</li>
         <li>Copy or save a report of the differences.</li>
-        <li>Right-click two files in the Project view &rarr; <b>Dev Utility | Compare Property Files</b>.</li>
+        <li>Right-click two files in the Project view &rarr; <b>DevBeer | Compare Property Files</b>.</li>
       </ul>
 
       <h3>String Toolbox</h3>
@@ -63,8 +63,17 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <h3>2.1.0</h3>
+      <ul>
+        <li><b>Renamed to DevBeer</b>, with a new logo. Same plugin, same settings &mdash; nothing to reinstall.</li>
+        <li><b>Wider IDE support:</b> now installs on <b>2023.3 and newer</b>, up from 2024.1.
+            2023.3 is the earliest build that has the declarative inlay-hints API the Spring
+            hints are built on.</li>
+      </ul>
+
       <h3>2.0.0</h3>
-      <p><b>The plugin is now "Dev Utility"</b> &mdash; a home for everyday developer tools rather than a single-feature plugin.</p>
+      <p><b>The plugin became a multi-tool</b> &mdash; a home for everyday developer utilities rather
+         than a single-feature plugin. (Released under the name "Dev Utility".)</p>
       <ul>
         <li><b>New:</b> Property &amp; YAML File Compare tool window, with an interactive
             key-by-key table, jump-to-source, and normalized/raw side-by-side diff in the IDE's diff editor.</li>
@@ -100,11 +109,11 @@
                     icon="/icons/strings13.svg"
                     factoryClass="com.devutility.strings.StringToolboxToolWindowFactory"/>
 
-        <notificationGroup id="Dev Utility" displayType="BALLOON"/>
+        <notificationGroup id="DevBeer" displayType="BALLOON"/>
     </extensions>
 
     <actions>
-        <group id="DevUtility.ToolsMenu" text="Dev Utility" popup="true" icon="/icons/devutility13.svg">
+        <group id="DevUtility.ToolsMenu" text="DevBeer" popup="true" icon="/icons/devbeer13.svg">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
 
             <action id="DevUtility.OpenCompare"
@@ -120,7 +129,7 @@
                     description="Open the string transformation toolbox"/>
         </group>
 
-        <group id="DevUtility.ProjectViewGroup" text="Dev Utility" popup="true" icon="/icons/devutility13.svg">
+        <group id="DevUtility.ProjectViewGroup" text="DevBeer" popup="true" icon="/icons/devbeer13.svg">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 
             <action id="DevUtility.CompareSelectedFiles"
@@ -134,7 +143,7 @@
                 class="com.devutility.strings.TransformSelectionAction"
                 icon="/icons/strings13.svg"
                 text="Transform Selection..."
-                description="Apply a Dev Utility string transformation to the current selection">
+                description="Apply a DevBeer string transformation to the current selection">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
 

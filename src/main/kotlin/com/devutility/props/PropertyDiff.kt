@@ -68,7 +68,7 @@ object PropertyDiffEngine {
      * IDE diff viewer makes a YAML file and a `.properties` file line up row for row.
      */
     fun normalize(snapshot: PropertySnapshot, keys: List<String>): String = buildString {
-        append("# ").append(snapshot.displayName).append("  (normalized by Dev Utility)\n")
+        append("# ").append(snapshot.displayName).append("  (normalized by DevBeer)\n")
         append("# ").append(snapshot.entries.size).append(" keys, source format: ")
             .append(snapshot.format.label).append("\n\n")
         for (key in keys) {

@@ -1,4 +1,4 @@
-# Dev Utility
+# DevBeer
 
 An IntelliJ Platform plugin with the small utilities you keep leaving the IDE for.
 
@@ -16,8 +16,8 @@ key space first, so a `.properties` file can be compared against a YAML file dir
 
 | | |
 |---|---|
-| **Open** | `Tools → Dev Utility → Compare Property Files…`, or the *Property Compare* tool window |
-| **From the Project view** | select one or two files → right-click → `Dev Utility → Compare Property Files` |
+| **Open** | `Tools → DevBeer → Compare Property Files…`, or the *Property Compare* tool window |
+| **From the Project view** | select one or two files → right-click → `DevBeer → Compare Property Files` |
 
 Once open:
 
@@ -102,6 +102,25 @@ every JetBrains IDE. The Spring hints are behind an optional dependency on
 `com.intellij.modules.java` and simply do not load where Java support is absent.
 
 Supported builds are set in `gradle.properties` (`pluginSinceBuild` / `pluginUntilBuild`).
+The current range is **233 – 243.\*** — IDE **2023.3 through 2024.3**.
+
+### Why the floor is 2023.3 and not earlier
+
+`sinceBuild` is not a free dial. The Spring inlay hints are built on the declarative
+inlay-hints API (`codeInsight.declarativeInlayProvider`), which JetBrains **introduced in
+2023.3**. Lowering the number below that would let the plugin install on IDEs where it then
+fails to load with `NoClassDefFoundError` — worse than not offering it at all.
+
+Reaching further back means real work, not a config change:
+
+| Target | What it costs |
+|---|---|
+| 2022.3 | Rewrite the inlay hints against the pre-declarative API; replace `ContentFactory.getInstance()` (added 2022.3) and `Service.Level` (added 2021.3) |
+| 2021.x | The above, plus shims for `ActionUpdateThread` (added 2022.2) |
+| 2020.x | All the above, **and** abandon the IntelliJ Platform Gradle Plugin 2.x — its own minimum target is 2022.3 — rebuilding on the legacy 1.x plugin |
+
+Run `./gradlew verifyPlugin` after changing the range; it verifies the declared floor
+explicitly, so a too-low `sinceBuild` fails locally instead of at upload.
 
 ---
 
