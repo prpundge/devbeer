@@ -135,16 +135,47 @@ explicitly, so a too-low `sinceBuild` fails locally instead of at upload.
 
 ### Publishing
 
-The publish token is read from the `JETBRAINS_PUBLISH_TOKEN` environment variable and is
-never stored in the repository.
+The publish token never lives in the repository. Copy the template and fill it in:
 
 ```bash
-# PowerShell
-$env:JETBRAINS_PUBLISH_TOKEN = "<token>"
+cp .env.example .env
+```
+
+Then open `.env` and replace the placeholder:
+
+```
+JETBRAINS_PUBLISH_TOKEN=perm-xxxxx.xxxxx.xxxxxxxx
+```
+
+Confirm it is picked up — this prints the source and length, never the token itself:
+
+```bash
+./gradlew checkPublishToken
+# Publish token found via .env file (57 chars).
+```
+
+Then publish:
+
+```bash
 ./gradlew publishPlugin
 ```
 
 Generate or revoke tokens at <https://plugins.jetbrains.com/author/me/tokens>.
+
+**Where the token can come from**, in priority order:
+
+| Source | Notes |
+|---|---|
+| `JETBRAINS_PUBLISH_TOKEN` environment variable | Wins over everything. Best for CI. |
+| `.env` in the project root | Gitignored. Best for local use. |
+| `jetbrainsPublishToken` in `~/.gradle/gradle.properties` | Lives outside the repo entirely, so it cannot be committed even by accident. |
+
+The untouched placeholder is deliberately *not* treated as a token, so a half-finished `.env`
+fails with a clear message instead of sending `<paste-your-token-here>` to the Marketplace.
+
+> **Never commit `.env`, and never paste a token into a chat, an issue or a CI log.** A token
+> that has been shared anywhere should be revoked and reissued — it grants publish rights to
+> every plugin on the account.
 
 To support newer IDEs, raise `platformVersion` and `pluginUntilBuild` in `gradle.properties`
 together, then re-run `./gradlew verifyPlugin` before uploading.

@@ -17,11 +17,12 @@
 # Logs
 *.log
 
-# Secrets — the Marketplace publish token is read from the JETBRAINS_PUBLISH_TOKEN
-# environment variable and must never be committed.
+# Secrets — the Marketplace publish token lives in .env (or the environment) and must
+# never be committed. .env.example is the tracked template and carries no real value.
 local.properties
 gradle-local.properties
 .env
 .env.*
+!.env.example
 *.token
 secrets.*
