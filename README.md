@@ -38,9 +38,48 @@ Once open:
 
 Unsaved editor changes are compared, not just what is on disk.
 
-### 2. String Toolbox
+### 2. Folder Compare
 
-A tool window with 60+ text transformations and a live preview. Pick a transform on the left,
+Compares two directory trees file by file. `Tools → DevBeer → Compare Folders…`, or select two
+folders in the Project view → right-click → `DevBeer → Compare Folders`.
+
+The IDE already has a directory diff, so the reason this exists is that it understands config
+files: for `.properties` and YAML pairs an extra column reports **how the keys differ** —
+`2 changed, 1 only left` — without opening anything.
+
+- Status per file: identical / different / only left / only right, colour-coded
+- Compares by **content hash**, not size and timestamp. Turn contents off for a fast pass that
+  treats same-size files as equal.
+- Double-click a config pair → key-level Property Compare. Double-click anything else →
+  side-by-side diff. A text diff of YAML against `.properties` tells you nothing, which is why
+  the two cases are routed differently.
+- Skips `build`, `out`, `target`, `node_modules`, `.git`, `.idea`, `__pycache__`, `dist` and
+  similar by default
+- Runs in the background with a cancellable progress bar; capped at 50,000 files, and the
+  summary says so when it truncates
+- Copy or open a grouped report
+
+### 3. JSON Formatter
+
+`Tools → DevBeer → JSON Formatter`, or the *JSON Formatter* tool window.
+
+Backed by a real recursive-descent parser rather than whitespace shuffling, which is what makes
+the rest possible:
+
+- **Diagnostics** — a syntax error reports its reason with a line and column, and the caret
+  moves to the offending character. The old whitespace-based formatter could only produce
+  mangled output.
+- **Lossless** — numbers keep their source text and objects keep an ordered entry list, so
+  `1.0`, `1e3`, `0.1000` and duplicate keys survive a round trip instead of being normalised.
+- **Lenient mode** — accepts `//` and `/* */` comments, trailing commas and single-quoted
+  strings, the dialect `tsconfig.json` and hand-edited config are written in.
+- Pretty print with 2 spaces, 4 spaces or tabs; minify; sort keys recursively.
+- Editor: right-click → **Format JSON** reformats the selection, or the whole file, as one
+  undoable change.
+
+### 4. String Toolbox
+
+A tool window with 74 text transformations and a live preview. Pick a transform on the left,
 type or paste on the top right, read the result on the bottom right.
 
 | Category | Examples |
@@ -68,7 +107,7 @@ In the editor itself:
 Report-style transforms (statistics, word frequency, JWT decode) are hidden from
 *Transform Selection…* — replacing your code with a statistics dump is never what you meant.
 
-### 3. Spring Boot Property Hints *(Java IDEs only)*
+### 5. Spring Boot Property Hints *(Java IDEs only)*
 
 Resolved property values shown as inlay hints next to the code.
 
@@ -97,7 +136,7 @@ Toggle the hints under `Settings → Editor → Inlay Hints → Values`.
 
 ## Compatibility
 
-The compare and string modules depend only on `com.intellij.modules.platform`, so they run in
+The compare, folder, JSON and string modules depend only on `com.intellij.modules.platform`, so they run in
 every JetBrains IDE. The Spring hints are behind an optional dependency on
 `com.intellij.modules.java` and simply do not load where Java support is absent.
 

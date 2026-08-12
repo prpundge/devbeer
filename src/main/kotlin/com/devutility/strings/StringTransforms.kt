@@ -1,5 +1,7 @@
 package com.devutility.strings
 
+import com.devutility.json.JsonFormatOptions
+import com.devutility.json.JsonFormatter
 import com.devutility.props.PropertiesParser
 import com.devutility.props.YamlParser
 import java.net.URLDecoder
@@ -130,8 +132,29 @@ object StringTransforms {
         }
 
         // ---------------------------------------------------------------- json / xml
-        add(TransformCategory.DATA, "json-pretty", "JSON pretty print", "Reindent with two spaces") { prettyJson(it) }
-        add(TransformCategory.DATA, "json-minify", "JSON minify", "Strip all insignificant whitespace") { minifyJson(it) }
+        add(TransformCategory.DATA, "json-pretty", "JSON pretty print", "Reindent with two spaces; reports the line and column of any syntax error") {
+            JsonFormatter.format(it)
+        }
+        add(TransformCategory.DATA, "json-minify", "JSON minify", "Strip all insignificant whitespace") {
+            JsonFormatter.minify(it)
+        }
+        add(TransformCategory.DATA, "json-pretty-lenient", "JSON pretty print (lenient)", "Also accepts comments, trailing commas and single quotes") {
+            JsonFormatter.format(it, JsonFormatOptions(lenient = true))
+        }
+        add(TransformCategory.DATA, "json-sort-keys", "JSON sort keys", "Pretty print with every object's keys in alphabetical order") {
+            JsonFormatter.format(it, JsonFormatOptions(sortKeys = true, lenient = true))
+        }
+        add(TransformCategory.DATA, "json-validate", "JSON validate", "Report whether the text is valid JSON, and where it breaks", editorSafe = false) { text ->
+            val strict = JsonFormatter.validate(text, lenient = false)
+            when {
+                strict == null -> "Valid JSON."
+                JsonFormatter.validate(text, lenient = true) == null ->
+                    "Not strict JSON, but readable in lenient mode.\n" +
+                        "  ${strict.reason} at line ${strict.line}, column ${strict.column}\n" +
+                        "  Comments, trailing commas and single quotes are accepted by the lenient transforms."
+                else -> "Invalid JSON.\n  ${strict.reason}\n  at line ${strict.line}, column ${strict.column}"
+            }
+        }
         add(TransformCategory.DATA, "java-escape", "Escape as Java string", "Quotes, backslashes and newlines escaped") { s ->
             s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
                 .replace("\r", "\\r").replace("\t", "\\t")
@@ -401,94 +424,10 @@ object StringTransforms {
         val decoder = Base64.getUrlDecoder()
         fun segment(i: Int) = String(decoder.decode(parts[i].padBase64()), StandardCharsets.UTF_8)
         return buildString {
-            append("// header\n").append(prettyJson(segment(0))).append("\n\n")
-            append("// payload\n").append(prettyJson(segment(1)))
+            append("// header\n").append(JsonFormatter.format(segment(0))).append("\n\n")
+            append("// payload\n").append(JsonFormatter.format(segment(1)))
             if (parts.size > 2) append("\n\n// signature (not verified)\n").append(parts[2])
         }
-    }
-
-    // ---------------------------------------------------------------- json
-
-    fun prettyJson(input: String, indent: String = "  "): String {
-        val src = input.trim()
-        val sb = StringBuilder(src.length + src.length / 4)
-        var level = 0
-        var inString = false
-        var escaped = false
-        var i = 0
-        while (i < src.length) {
-            val c = src[i]
-            if (inString) {
-                sb.append(c)
-                when {
-                    escaped -> escaped = false
-                    c == '\\' -> escaped = true
-                    c == '"' -> inString = false
-                }
-                i++
-                continue
-            }
-            when (c) {
-                '"' -> {
-                    sb.append(c)
-                    inString = true
-                }
-                '{', '[' -> {
-                    val close = if (c == '{') '}' else ']'
-                    val next = nextNonWhitespace(src, i + 1)
-                    if (next >= 0 && src[next] == close) {
-                        // Keep empty containers on one line rather than "{\n}".
-                        sb.append(c).append(close)
-                        i = next
-                    } else {
-                        level++
-                        sb.append(c).append('\n').append(indent.repeat(level))
-                    }
-                }
-                '}', ']' -> {
-                    level = (level - 1).coerceAtLeast(0)
-                    sb.append('\n').append(indent.repeat(level)).append(c)
-                }
-                ',' -> sb.append(',').append('\n').append(indent.repeat(level))
-                ':' -> sb.append(": ")
-                ' ', '\t', '\n', '\r' -> Unit
-                else -> sb.append(c)
-            }
-            i++
-        }
-        return sb.toString()
-    }
-
-    fun minifyJson(input: String): String {
-        val sb = StringBuilder(input.length)
-        var inString = false
-        var escaped = false
-        for (c in input) {
-            if (inString) {
-                sb.append(c)
-                when {
-                    escaped -> escaped = false
-                    c == '\\' -> escaped = true
-                    c == '"' -> inString = false
-                }
-                continue
-            }
-            when (c) {
-                '"' -> {
-                    sb.append(c)
-                    inString = true
-                }
-                ' ', '\t', '\n', '\r' -> Unit
-                else -> sb.append(c)
-            }
-        }
-        return sb.toString()
-    }
-
-    private fun nextNonWhitespace(s: String, from: Int): Int {
-        var i = from
-        while (i < s.length && s[i].isWhitespace()) i++
-        return if (i < s.length) i else -1
     }
 
     // ---------------------------------------------------------------- xml
