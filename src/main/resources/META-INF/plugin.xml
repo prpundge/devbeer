@@ -98,6 +98,27 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <h3>2.3.0</h3>
+      <ul>
+        <li><b>New: AI Assistant.</b> A lightweight, repository-aware assistant — ask about the
+            project, explain a selection, suggest an improvement, trace a call flow, and analyse
+            an error down to its root cause and the exact line to fix. Works with a
+            <b>local model over HTTP</b> (Ollama and anything speaking its API) or any
+            <b>OpenAI-compatible endpoint</b>.
+            <br/><b>Off by default</b> — no network call is made until you configure a provider,
+            and nothing else in DevBeer depends on it.</li>
+        <li><b>Private by design:</b> the repository is never uploaded. Only a ranked, budgeted
+            slice of context is sent — capped at 10 files and 50,000 characters — after
+            generated folders and secret files are excluded and credential-shaped values are
+            redacted. API keys live in the OS keychain.</li>
+        <li><b>Fixes are reviewable, never automatic:</b> a suggested edit is validated against
+            the current file, shown as a preview, and applied only on your click, as one
+            undoable change.</li>
+        <li><b>Wider IDE support:</b> now installs on <b>2023.1 and newer</b>, down from 2024.1
+            in 2.1.0. The floor was measured against every build from 2021.3 up rather than
+            inferred.</li>
+      </ul>
+
       <h3>2.2.0</h3>
       <ul>
         <li><b>New: Folder Compare.</b> Compare two directory trees file by file. For
@@ -168,7 +189,26 @@
                     icon="/icons/json13.svg"
                     factoryClass="com.devutility.json.JsonToolWindowFactory"/>
 
+        <toolWindow id="DevBeer AI"
+                    anchor="right"
+                    icon="/icons/ai13.svg"
+                    factoryClass="com.devutility.ai.ui.AiToolWindowFactory"/>
+
         <notificationGroup id="DevBeer" displayType="BALLOON"/>
+
+        <!--
+          The AI layer is optional and inert until configured: the settings default to
+          disabled, so no provider is constructed and no network call is made until the user
+          opts in. If it fails, the other five modules are unaffected (§21, §38).
+        -->
+        <applicationService serviceImplementation="com.devutility.ai.settings.DevBeerAiSettings"/>
+        <projectService serviceImplementation="com.devutility.ai.AiService"/>
+
+        <applicationConfigurable
+            parentId="tools"
+            id="com.devutility.ai.settings"
+            displayName="DevBeer AI Assistant"
+            instance="com.devutility.ai.settings.DevBeerAiConfigurable"/>
     </extensions>
 
     <actions>
@@ -198,6 +238,38 @@
                     icon="/icons/json13.svg"
                     text="JSON Formatter"
                     description="Format, minify and validate JSON"/>
+
+            <separator/>
+
+            <action id="DevBeer.Ai.Ask"
+                    class="com.devutility.ai.action.AskDevBeerAction"
+                    icon="/icons/ai13.svg"
+                    text="AI Assistant"
+                    description="Ask about this repository, or analyse an error"/>
+        </group>
+
+        <group id="DevBeer.Ai.EditorGroup" text="DevBeer" popup="true" icon="/icons/ai13.svg">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+
+            <action id="DevBeer.Ai.Explain"
+                    class="com.devutility.ai.action.ExplainSelectionAction"
+                    text="Explain Selection"
+                    description="Explain the selected code using the surrounding project context"/>
+
+            <action id="DevBeer.Ai.Suggest"
+                    class="com.devutility.ai.action.SuggestImprovementAction"
+                    text="Suggest Improvement"
+                    description="Recommend one focused improvement. Never edits the file directly"/>
+
+            <action id="DevBeer.Ai.AnalyzeError"
+                    class="com.devutility.ai.action.AnalyzeErrorAction"
+                    text="Analyze Error"
+                    description="Find the root cause of the selected error and where to fix it"/>
+
+            <action id="DevBeer.Ai.AskAbout"
+                    class="com.devutility.ai.action.AskAboutSelectionAction"
+                    text="Ask DevBeer"
+                    description="Open the AI Assistant with the selection as the question"/>
         </group>
 
         <group id="DevUtility.ProjectViewGroup" text="DevBeer" popup="true" icon="/icons/devbeer13.svg">
