@@ -29,8 +29,43 @@
         <li>Right-click two files in the Project view &rarr; <b>DevBeer | Compare Property Files</b>.</li>
       </ul>
 
+      <h3>Folder Compare</h3>
+      <p>
+        Compare two directory trees file by file &mdash; and, unlike a plain directory diff,
+        it understands configuration files.
+      </p>
+      <ul>
+        <li>Every file with its size on each side and a status of
+            <b>identical</b>, <b>different</b>, <b>only left</b> or <b>only right</b>.</li>
+        <li>For <code>.properties</code> and YAML pairs, an extra column says <i>how</i> they differ &mdash;
+            &ldquo;2 changed, 1 only left&rdquo; &mdash; without opening anything.</li>
+        <li>Double-click a config file to open it in the key-level Property Compare;
+            double-click anything else for the side-by-side diff.</li>
+        <li>Compares by content hash, not just size and timestamp. Turn contents off for a fast pass.</li>
+        <li>Skips <code>build</code>, <code>target</code>, <code>node_modules</code>, <code>.git</code>
+            and friends by default.</li>
+        <li>Runs in the background and can be cancelled. Right-click two folders in the
+            Project view &rarr; <b>DevBeer | Compare Folders</b>.</li>
+      </ul>
+
+      <h3>JSON Formatter</h3>
+      <p>
+        Format, minify and validate JSON, backed by a real parser rather than whitespace
+        juggling &mdash; so broken input gets a reason and a position instead of mangled output.
+      </p>
+      <ul>
+        <li>Pretty print with 2 spaces, 4 spaces or tabs; minify; sort keys at every level.</li>
+        <li>Syntax errors report the reason with a line and column, and put the caret on it.</li>
+        <li><b>Lenient mode</b> reads the JSON people actually write: <code>//</code> and
+            <code>/* */</code> comments, trailing commas and single-quoted strings.</li>
+        <li>Lossless &mdash; <code>1.0</code>, <code>1e3</code> and duplicate keys survive a round trip
+            instead of being quietly rewritten.</li>
+        <li>Right-click in the editor &rarr; <b>Format JSON</b> to reformat the selection, or the
+            whole file, as one undoable change.</li>
+      </ul>
+
       <h3>String Toolbox</h3>
-      <p>60+ text transformations with a live preview, in one tool window.</p>
+      <p>74 text transformations with a live preview, in one tool window.</p>
       <ul>
         <li><b>Case</b> &mdash; camelCase, PascalCase, snake_case, CONSTANT_CASE, kebab-case, dot.case, Title Case, Sentence case, swap case.</li>
         <li><b>Encode / decode</b> &mdash; Base64 (standard + URL-safe), URL, HTML entities, hex, Unicode escapes.</li>
@@ -57,12 +92,26 @@
       </ul>
 
       <p>
-        The compare and string modules run in every JetBrains IDE. The Spring inlay hints
-        load only when Java support is present.
+        The compare, folder, JSON and string modules run in every JetBrains IDE. The Spring
+        inlay hints load only when Java support is present.
       </p>
     ]]></description>
 
     <change-notes><![CDATA[
+      <h3>2.2.0</h3>
+      <ul>
+        <li><b>New: Folder Compare.</b> Compare two directory trees file by file. For
+            <code>.properties</code> and YAML pairs it also reports how the <i>keys</i> differ, and
+            drilling in opens the key-level Property Compare rather than a text diff. Compares by
+            content hash, runs in the background, and can be cancelled.</li>
+        <li><b>New: JSON Formatter</b> tool window and a <i>Format JSON</i> editor action.</li>
+        <li><b>Improved:</b> JSON handling is backed by a real parser now. Broken input reports a
+            reason with a line and column instead of producing mangled output, and formatting is
+            lossless &mdash; <code>1.0</code>, <code>1e3</code> and duplicate keys are no longer
+            quietly rewritten.</li>
+        <li><b>New transforms:</b> lenient JSON pretty print, JSON sort keys, and JSON validate.</li>
+      </ul>
+
       <h3>2.1.0</h3>
       <ul>
         <li><b>Renamed to DevBeer</b>, with a new logo. Same plugin, same settings &mdash; nothing to reinstall.</li>
@@ -109,6 +158,16 @@
                     icon="/icons/strings13.svg"
                     factoryClass="com.devutility.strings.StringToolboxToolWindowFactory"/>
 
+        <toolWindow id="Folder Compare"
+                    anchor="bottom"
+                    icon="/icons/folders13.svg"
+                    factoryClass="com.devutility.folders.FolderCompareToolWindowFactory"/>
+
+        <toolWindow id="JSON Formatter"
+                    anchor="right"
+                    icon="/icons/json13.svg"
+                    factoryClass="com.devutility.json.JsonToolWindowFactory"/>
+
         <notificationGroup id="DevBeer" displayType="BALLOON"/>
     </extensions>
 
@@ -127,6 +186,18 @@
                     icon="/icons/strings13.svg"
                     text="String Toolbox"
                     description="Open the string transformation toolbox"/>
+
+            <action id="DevUtility.OpenFolderCompare"
+                    class="com.devutility.folders.OpenFolderCompareAction"
+                    icon="/icons/folders13.svg"
+                    text="Compare Folders..."
+                    description="Compare two directory trees file by file"/>
+
+            <action id="DevUtility.OpenJsonFormatter"
+                    class="com.devutility.json.OpenJsonFormatterAction"
+                    icon="/icons/json13.svg"
+                    text="JSON Formatter"
+                    description="Format, minify and validate JSON"/>
         </group>
 
         <group id="DevUtility.ProjectViewGroup" text="DevBeer" popup="true" icon="/icons/devbeer13.svg">
@@ -137,6 +208,12 @@
                     icon="/icons/compare13.svg"
                     text="Compare Property Files"
                     description="Compare the selected configuration files key by key"/>
+
+            <action id="DevUtility.CompareSelectedFolders"
+                    class="com.devutility.folders.CompareSelectedFoldersAction"
+                    icon="/icons/folders13.svg"
+                    text="Compare Folders"
+                    description="Compare the selected directory trees file by file"/>
         </group>
 
         <action id="DevUtility.TransformSelection"
@@ -144,6 +221,14 @@
                 icon="/icons/strings13.svg"
                 text="Transform Selection..."
                 description="Apply a DevBeer string transformation to the current selection">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="DevUtility.FormatJson"
+                class="com.devutility.json.FormatJsonAction"
+                icon="/icons/json13.svg"
+                text="Format JSON"
+                description="Reformat the selection, or the whole file, as indented JSON">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
 

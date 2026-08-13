@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.2.0
+
+### Added
+
+- **Folder Compare** tool window. Compares two directory trees file by file, by content hash
+  rather than size and timestamp, running in the background and cancellable.
+
+  The reason it exists alongside the IDE's own directory diff is the extra column: for
+  `.properties` and YAML pairs it reports *how the keys differ* — "2 changed, 1 only left" —
+  without opening anything, and double-clicking one opens the key-level Property Compare
+  instead of a text diff. A text diff of YAML against `.properties` tells you nothing.
+
+  Reachable from `Tools → DevBeer → Compare Folders…` or by selecting two folders in the
+  Project view. Skips `build`, `target`, `node_modules`, `.git` and similar by default.
+
+- **JSON Formatter** tool window: pretty print (2 spaces, 4 spaces or tabs), minify, sort keys
+  at every level, and validate.
+
+- **Format JSON** editor action — reformats the selection, or the whole file, as one undoable
+  change.
+
+- Three transforms in the String Toolbox: lenient JSON pretty print, JSON sort keys, and
+  JSON validate.
+
+### Changed
+
+- **JSON is parsed now, not just reindented.** The old pretty-printer walked the text moving
+  whitespace around, which meant malformed input produced malformed output with no
+  explanation. A recursive-descent parser replaces it, and that buys three things:
+
+  - **Diagnostics.** Errors carry a reason plus a line and column, and the editor caret lands
+    on the offending character.
+  - **Losslessness.** Numbers keep their original text and objects keep an ordered list of
+    entries, so `1.0`, `1e3`, `0.1000` and duplicate keys round-trip unchanged rather than
+    being silently normalised.
+  - **Lenient mode**, which accepts the JSON people actually write: `//` and `/* */` comments,
+    trailing commas and single-quoted strings.
+
 ## 2.1.0
 
 ### Changed
