@@ -84,6 +84,10 @@ dependencies {
         bundledPlugins("com.intellij.java")
         instrumentationTools()
         pluginVerifier()
+
+        // Needed by the fixture-based tests that exercise the VFS- and PSI-dependent code
+        // (ContextResolver, SourceLocationResolver) which plain unit tests cannot reach.
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
 }
 
@@ -109,7 +113,20 @@ intellijPlatform {
         ides {
             // The oldest build we claim to support. Verify it explicitly rather than
             // trusting recommended(), which does not necessarily include the floor.
-            ide(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
+            ide(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2023.1")
+
+            // NOT verified here: a Java-less IDE such as PyCharm.
+            //
+            // Running `ide(PyCharmCommunity, "2023.3.7")` reports 27 "compatibility problems",
+            // every one of them inside JavaSymbolEnricher or SpringValueInlayProvider — the two
+            // classes that are *meant* to reference Java PSI and are guarded at runtime, one by
+            // Class.forName and one by the optional devutility-java.xml descriptor. The verifier
+            // cannot tell a guarded reference from a real one, so it would fail permanently and
+            // the gate would stop meaning anything.
+            //
+            // The invariant that actually matters — no other class touches Java PSI — is
+            // enforced by JavaIsolationTest, which reads the compiled bytecode. Re-add the line
+            // above if you want to inspect the full report by hand.
             recommended()
         }
     }
