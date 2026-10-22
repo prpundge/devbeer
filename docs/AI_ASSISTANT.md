@@ -246,6 +246,10 @@ DEVBEER_TEST_OLLAMA_MODEL=qwen2.5:3b ./gradlew test --tests '*LiveOllamaTest'
 
 ## 10. Safety model
 
+> **This section describes 2.3.0.** Constitution 2.0.0, Principle VII ("the assistant proposes;
+> the user disposes"), defines the agent model for the next release. See
+> `specs/001-roo-code-parity/spec.md`.
+
 ```
 LLM suggestion → plugin validation → preview → user approval → undoable write command
 ```
