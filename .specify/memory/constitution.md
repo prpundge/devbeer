@@ -3,7 +3,7 @@
 The rules this plugin is built by. These are not aspirations — every one of them was
 paid for by a bug, a rejected upload, or a wasted afternoon on this codebase.
 
-**Version:** 1.0.0 · **Ratified:** 2026-08-12 · **Applies to:** all work in this repository
+**Version:** 2.0.0 · **Ratified:** 2026-08-12 · **Amended:** 2026-10-23 · **Applies to:** all work in this repository
 
 ---
 
@@ -28,8 +28,11 @@ an API the plugin uses, that means `NoClassDefFoundError` on load, which is stri
 than not offering the plugin at all.
 
 The floor is set by the oldest API actually used, and the reason is recorded next to the
-number in `gradle.properties`. Today that is 233, because the declarative inlay-hints API
-arrived in 2023.3.
+number in `gradle.properties`. Today that is 231, and it was *measured*: the Plugin Verifier
+was run against every build from 2021.3 up (`docs/COMPATIBILITY.md`). An earlier version of
+this principle said 233 because the declarative inlay-hints API was believed to have arrived
+in 2023.3. It arrived in 2023.1. Reasoning about when an API appeared was wrong where
+measurement was right, which is the point of the corollary below.
 
 Corollary: **run `verifyPlugin` against the declared floor explicitly.** `recommended()` does
 not necessarily include it. Lowering the floor to 233 surfaced a real `NoSuchMethodError` —
@@ -91,12 +94,42 @@ Where something is untested, say so in the same breath as the result. `FolderDif
 tree walk and hashing are not covered by unit tests, and the README, the commit and the PR
 all say so.
 
+### VII. The assistant proposes; the user disposes
+
+The AI assistant may read, edit and run things in the project — that is what makes it useful —
+but never on its own authority.
+
+- **Every action is proposed before it happens.** A read names the file, an edit is shown as a
+  diff, a command is shown verbatim, and nothing happens until the user approves it or has
+  pre-approved that category of action in settings. A rejection carries the user's feedback back
+  to the model.
+- **Every edit is reversible twice over.** It is applied as one undoable change, and it is
+  preceded by a checkpoint of the workspace taken outside the project's own version control.
+- **The model never navigates or writes unverified.** A location becomes clickable only after
+  the plugin has confirmed it exists; an edit is applied only after the plugin has confirmed the
+  file still reads as the model believed. (Kept from 2.3.0.)
+- **Off by default, and silent when off.** No provider is contacted, no process is started and
+  no index is built until the user turns the assistant on and configures it.
+- **The repository is never sent.** Only ranked, budgeted, redacted fragments are, and
+  `.rooignore` plus the built-in exclusion list decide what may not be read at all.
+- **Capabilities that need an external program are reached over its protocol, never bundled.**
+  Tool servers, a vector store, a browser and git are driven over stdio, HTTP, a remote-debugging
+  protocol and the command line. The platform's own bundled libraries count as platform. The
+  no-third-party-dependency rule below stays intact.
+
+This supersedes the 2.3.0 design rule in `docs/AI_ASSISTANT.md` §10 — "there is no autonomous
+agent: no multi-file edits, no command execution". That rule was right for a read-mostly
+assistant. The owner's decision of 2026-10-23 to adopt the full Roo Code behaviour model
+(`specs/001-roo-code-parity/spec.md`) replaces *the assistant never acts* with *the assistant
+never acts without consent*. That is the harder rule to keep, because every tool must honour
+it, and it is why this principle exists.
+
 ---
 
 ## Platform Constraints
 
 - **Target:** IntelliJ Platform, built against `platformVersion` in `gradle.properties`.
-- **Range:** `pluginSinceBuild`–`pluginUntilBuild`, currently 233–243.\*.
+- **Range:** `pluginSinceBuild`–`pluginUntilBuild`, currently 231–243.\*.
 - **Java is optional.** `com.intellij.modules.java` is an optional dependency behind
   `devutility-java.xml`, so the compare, folder, JSON and string modules run in every
   JetBrains IDE and only the Spring hints require a Java-capable one.
@@ -121,6 +154,11 @@ Before any upload to the Marketplace:
 4. Confirm the fix is in the shipped bytecode, not just the source, when fixing a
    platform-compatibility bug.
 
+The same gates run in CI before any automated upload (`.github/workflows/publish-beta.yml`): a
+push to `main` publishes `<pluginVersion>-beta.<run>` to the Marketplace **beta** channel, and
+only after `test` and `verifyPlugin` have passed. The stable channel is only ever published
+deliberately — by hand, or by choosing it explicitly when running the workflow.
+
 Before any push:
 
 1. Scan staged content for credential material.
@@ -135,3 +173,10 @@ what changed and why — not by making an exception in passing.
 
 Amendments bump the version above: MAJOR for removing or redefining a principle, MINOR for
 adding one, PATCH for clarification.
+
+## Amendments
+
+| Version | Date | What changed | Why |
+|---|---|---|---|
+| 2.0.0 | 2026-10-23 | Added Principle VII and superseded the "no autonomous agent" rule of `docs/AI_ASSISTANT.md` §10. Corrected the floor in Principle II and Platform Constraints from 233 to 231. Recorded the CI gate under Quality Gates. | The owner decided to adopt the full Roo Code behaviour model (`specs/001-roo-code-parity`). MAJOR because it redefines what the AI layer is allowed to do. |
+| 1.0.0 | 2026-08-12 | Ratified. | — |

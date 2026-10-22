@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.3.0
+
+### Added
+
+- **AI Assistant.** A lightweight, repository-aware assistant: ask about the project, explain a
+  selection, suggest one improvement, trace a method's call flow, and analyse an error down to
+  its root cause and the exact line to fix. Works with a local model over HTTP (Ollama and
+  anything speaking its API) or any OpenAI-compatible endpoint.
+
+  **Off by default** — no network call is made until a provider is configured — and nothing
+  else in DevBeer depends on it. The repository is never uploaded: a ranked, budgeted slice of
+  context is sent (10 files and 50,000 characters by default) after generated folders and
+  secret files are excluded and credential-shaped values are redacted. API keys live in the OS
+  keychain. A suggested fix is validated against the current file, previewed, and applied only
+  on click as one undoable change. See `docs/AI_ASSISTANT.md`.
+
+- The *DevBeer AI* tool window, `Tools → DevBeer → AI Assistant`, and four editor actions:
+  Explain Selection, Suggest Improvement, Analyze Error and Ask DevBeer.
+
+### Changed
+
+- **Minimum supported IDE lowered from 2023.3 to 2023.1** (`sinceBuild` 231). The floor was
+  measured this time — the Plugin Verifier was run against every build from 2021.3 up — rather
+  than inferred from when an API was believed to appear. See `docs/COMPATIBILITY.md`.
+- The 13px menu and tool-window marks are scale reductions of the logo now rather than
+  separate drawings, and the AI tool window has its own mark: the glass plus a sparkle.
+
 ## 2.2.0
 
 ### Added

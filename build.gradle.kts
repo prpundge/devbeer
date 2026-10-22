@@ -136,6 +136,12 @@ intellijPlatform {
         // reads; all of them are outside version control. `gradlew checkPublishToken` says
         // which one was picked up without printing the value.
         token.set(providers.provider { resolvePublishToken()?.token })
+
+        // `-PpublishChannel=beta` uploads to the beta channel. Omitted, it is the default (stable)
+        // channel, exactly as before; the CI workflow is the only caller that sets it.
+        channels.set(
+            providers.gradleProperty("publishChannel").map { listOf(it) }.orElse(listOf("default")),
+        )
     }
 }
 

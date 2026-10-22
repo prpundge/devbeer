@@ -1,10 +1,8 @@
 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark-theme twin of devbeer13.svg. Geometry identical; only the stroke colour differs. -->
   <g stroke="#AFB1B3" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <!-- glass -->
-    <path d="M2.9 5.1v5.4a1 1 0 0 0 1 1h3.6a1 1 0 0 0 1-1V5.1"/>
-    <!-- handle -->
-    <path d="M8.5 6.4h1.1a1.55 1.55 0 0 1 0 3.1H8.5"/>
-    <!-- foam -->
-    <path d="M2.9 5.1c-.2-1 .6-1.7 1.4-1.4.1-1 1.2-1.5 2-.9.7-.6 1.8-.2 1.9.7.8-.1 1.4.7 1.1 1.6z"/>
+    <path d="M8.8 5.9h0.9a1.5 1.5 0 0 1 0 3.1H8.8"/>
+    <path d="M1.8 3.9V10a1.15 1.15 0 0 0 1.15 1.15h4.7A1.15 1.15 0 0 0 8.8 10V3.9"/>
+    <path d="M1.8 3.9C1.8 2.55 3.1 2.05 3.95 2.85 4.4 1.45 6.2 1.45 6.65 2.85 7.5 2.05 8.8 2.55 8.8 3.9Z"/>
   </g>
 </svg>

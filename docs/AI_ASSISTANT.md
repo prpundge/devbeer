@@ -173,7 +173,7 @@ and points at Ask.
 
 ## 7. Test coverage
 
-**147 AI tests** of 214 total.
+**162 AI tests** of 230 total (measured 2026-10-23).
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -189,6 +189,8 @@ and points at Ask.
 | `ContextResolverFixtureTest` | 16 | Real project via IntelliJ fixtures — index search, file resolution, verification, exclusions, call flow |
 | `LiveOllamaTest` | 6 | Real HTTP against a running Ollama; auto-skips when absent |
 | `CodeFlowAnalyzerTest` | 9 | Method-name extraction, flow intent, prompt forbids added nodes |
+| `ClosedIssuesTest` | 8 | Regression cover from the reachability audit: stack-frame signal, reference tier, inspection kind |
+| `PerformanceBenchmarkTest` | 8 | The memory and CPU ceilings in `docs/COMPATIBILITY.md`; prints the `BENCH` lines |
 
 The default suite is hermetic: LLM behaviour runs through `FakeLlmProvider`, and
 `LiveOllamaTest` skips itself via `assumeTrue` when no server is reachable, so CI never
@@ -246,6 +248,10 @@ DEVBEER_TEST_OLLAMA_MODEL=qwen2.5:3b ./gradlew test --tests '*LiveOllamaTest'
 
 ## 10. Safety model
 
+> **This section describes 2.3.0.** Constitution 2.0.0, Principle VII ("the assistant proposes;
+> the user disposes"), defines the agent model for the next release. See
+> `specs/001-roo-code-parity/spec.md`.
+
 ```
 LLM suggestion → plugin validation → preview → user approval → undoable write command
 ```
@@ -258,8 +264,9 @@ builds.
 ## 11. Build and verification
 
 ```
-./gradlew test          214 tests, 0 failures
-./gradlew buildPlugin   devbeer-2.2.0.zip
-./gradlew verifyPlugin  IC-233 ×2, IC-241, IC-242, IC-243 — all Compatible
+./gradlew test          230 tests, 0 failures                                   (2026-10-23)
+./gradlew buildPlugin   devbeer-2.3.0.zip                                       (2026-10-23)
+./gradlew verifyPlugin  IC-231 ×2, IC-232, IC-233, IC-241, IC-242, IC-243 — all Compatible;
+                        1 deprecated-API usage on 242 and 2 on 243, both documented at the call sites
 ./gradlew runIde        loads clean: "Loaded custom plugins: DevBeer (2.2.0)", 0 errors
 ```

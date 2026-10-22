@@ -165,7 +165,7 @@ explicitly, so a too-low `sinceBuild` fails locally instead of at upload.
 ## Building
 
 ```bash
-./gradlew buildPlugin      # -> build/distributions/dev-utility-<version>.zip
+./gradlew buildPlugin      # -> build/distributions/devbeer-<version>.zip
 ./gradlew test             # parser and transform unit tests
 ./gradlew runIde           # sandbox IDE with the plugin installed
 ./gradlew verifyPlugin     # JetBrains Plugin Verifier, same check the Marketplace runs
@@ -217,6 +217,36 @@ fails with a clear message instead of sending `<paste-your-token-here>` to the M
 
 To support newer IDEs, raise `platformVersion` and `pluginUntilBuild` in `gradle.properties`
 together, then re-run `./gradlew verifyPlugin` before uploading.
+
+### Continuous delivery: the beta channel
+
+Every push to `main` publishes a **beta** build automatically through
+[`.github/workflows/publish-beta.yml`](.github/workflows/publish-beta.yml):
+
+1. `./gradlew test`, then `./gradlew verifyPlugin` against the whole supported range. A failure
+   anywhere stops the upload.
+2. `./gradlew publishPlugin` with the version `<pluginVersion>-beta.<run number>` — for example
+   `2.4.0-beta.7` — to the Marketplace **beta** channel. The stable channel is never published
+   automatically.
+
+The token comes from the `JETBRAINS_PUBLISH_TOKEN` repository secret, the same environment
+variable the build reads locally, so nothing is CI-specific. To rotate it, generate a new token
+at <https://plugins.jetbrains.com/author/me/tokens>, put it in `.env`, and run
+`gh secret set JETBRAINS_PUBLISH_TOKEN`.
+
+Because betas are named after `pluginVersion`, that property must always hold the *next*
+release, never one already on the stable channel: a `2.3.0-beta.5` sorts below a published
+`2.3.0` and nobody would ever see it. Bump it right after each stable release.
+
+To publish deliberately from any branch, use **Actions → Publish beta → Run workflow** and pick
+the channel. Choosing `default` publishes `pluginVersion` itself to the stable channel.
+
+To install betas, add the channel repository in the IDE under
+*Settings → Plugins → ⚙ → Manage Plugin Repositories*:
+
+```
+https://plugins.jetbrains.com/plugins/beta/com.plugin.springprops.viewer
+```
 
 ---
 
