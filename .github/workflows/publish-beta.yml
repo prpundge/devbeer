@@ -1,0 +1,103 @@
+# Publishes a beta build to the JetBrains Marketplace on every push to main.
+#
+# Version:  <pluginVersion from gradle.properties>-beta.<run number>, for example 2.4.0-beta.7.
+#           pluginVersion must therefore always be the *next* release, never one already on the
+#           stable channel, or the beta sorts below stable and nobody sees it.
+# Channel:  "beta". Users opt in by adding the channel repository to their IDE under
+#           Settings → Plugins → ⚙ → Manage Plugin Repositories:
+#               https://plugins.jetbrains.com/plugins/beta/com.plugin.springprops.viewer
+#
+# The stable channel is never touched automatically. "Run workflow" (workflow_dispatch) can run
+# from any branch and can pick the channel, so a stable release stays a deliberate click.
+#
+# The token is the JETBRAINS_PUBLISH_TOKEN repository secret. build.gradle.kts reads the same
+# environment variable locally (see resolvePublishToken), so nothing here is CI-specific and
+# the token never appears in this file or in the logs.
+#
+# The constitution's quality gates run first: tests, then the Plugin Verifier against the whole
+# supported range including the declared floor. A failure anywhere stops the upload.
+name: Publish beta
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Marketplace release channel"
+        type: choice
+        options: [beta, default]
+        default: beta
+
+# One upload at a time. A second push queues behind the first instead of racing it.
+concurrency:
+  group: marketplace-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Require the publish token
+        env:
+          JETBRAINS_PUBLISH_TOKEN: ${{ secrets.JETBRAINS_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "$JETBRAINS_PUBLISH_TOKEN" ]; then
+            echo "::error::The JETBRAINS_PUBLISH_TOKEN repository secret is not set."
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compute the version and channel
+        id: release
+        run: |
+          base="$(sed -n 's/^pluginVersion[[:space:]]*=[[:space:]]*//p' gradle.properties | tr -d '[:space:]')"
+          channel="${{ github.event.inputs.channel || 'beta' }}"
+          if [ "$channel" = "beta" ]; then
+            version="${base}-beta.${GITHUB_RUN_NUMBER}"
+          else
+            version="$base"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+          echo "Publishing $version to the '$channel' channel"
+
+      - name: Quality gates (tests, then Plugin Verifier)
+        run: |
+          chmod +x gradlew
+          ./gradlew test verifyPlugin --console=plain \
+            -PpluginVersion="${{ steps.release.outputs.version }}"
+
+      - name: Publish
+        env:
+          JETBRAINS_PUBLISH_TOKEN: ${{ secrets.JETBRAINS_PUBLISH_TOKEN }}
+        run: |
+          ./gradlew checkPublishToken publishPlugin --console=plain \
+            -PpluginVersion="${{ steps.release.outputs.version }}" \
+            -PpublishChannel="${{ steps.release.outputs.channel }}"
+
+      - name: Keep the artifact and verifier reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: devbeer-${{ steps.release.outputs.version }}
+          path: |
+            build/distributions/*.zip
+            build/reports/pluginVerifier
+          if-no-files-found: ignore
