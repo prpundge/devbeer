@@ -159,8 +159,8 @@ own export matters for users migrating from Roo Code, so it stays in scope, behi
 
 Once the developer trusts the assistant for a category of action, they switch that category to
 auto-approve: reading files, writing files, running commands whose prefix is on an allowed list,
-using the browser, using tool servers, switching modes, creating and completing subtasks, and
-answering follow-up questions with the default after a timeout. A master toggle pauses all of it.
+using tool servers, switching modes, creating and completing subtasks, and answering follow-up
+questions with the default after a timeout. A master toggle pauses all of it.
 
 **Why this priority**: Auto-approve is what makes long tasks practical, but the per-action loop
 must exist first.
@@ -205,7 +205,7 @@ under each.
 2. **Given** the only remaining profile, **When** delete is attempted, **Then** it is refused.
 3. **Given** a profile with a rate limit of 5 seconds, **When** two requests are made back to back,
    **Then** the second waits at least 5 seconds.
-4. **Given** any provider from the documented list of 22, **When** a profile is created for it,
+4. **Given** any provider from the supported list in FR-026, **When** a profile is created for it,
    **Then** the provider-specific fields are offered and a request succeeds against a conforming
    endpoint.
 
@@ -330,9 +330,10 @@ fixture project, and ask a question that only a meaning-based search can answer.
 
 ### User Story 12 - Remaining Roo Code conveniences (Priority: P3)
 
-Enhance Prompt (wand), the task todo list, intelligent context condensing, browser use, the `/init`
-command, image generation, custom tools, background editing and `run_slash_command`. The last four
-are experimental in Roo Code and stay off by default.
+Enhance Prompt (wand), the task todo list, intelligent context condensing, the `/init` command,
+image generation, background editing and `run_slash_command`. The last three are experimental in
+Roo Code (`imageGeneration`, `preventFocusDisruption`, `runSlashCommand`) and stay off by default.
+Browser use and custom tools are excluded (FR-036, FR-038).
 
 **Why this priority**: Each is documented Roo Code behaviour and is needed for "all the features",
 but none changes what the agent can do to the project.
@@ -402,9 +403,8 @@ and no tracked file referenced the old name.
 
 - **FR-001**: Every capability in this feature MUST be off until the user enables the assistant.
   While off, no network call is made and no background work is started.
-- **FR-002**: Any action that modifies a file, runs a command, drives a browser, or calls an
-  external tool server MUST require explicit approval per action unless the user has auto-approved
-  that category.
+- **FR-002**: Any action that modifies a file, runs a command, or calls an external tool server
+  MUST require explicit approval per action unless the user has auto-approved that category.
 - **FR-003**: Secret-shaped values MUST be redacted from everything sent to a provider, and files
   matched by `.rooignore` or by DevBeer's existing exclusion rules MUST never be read or sent, except
   where Roo Code documents a deliberate bypass (direct `@` mentions).
@@ -416,9 +416,11 @@ and no tracked file referenced the old name.
 - **FR-005**: The assistant MUST offer these tools with Roo Code's documented semantics:
   `read_file`, `list_files`, `search_files`, `codebase_search` (only when indexing is configured),
   `read_command_output`, `write_to_file`, `apply_diff`, `apply_patch`, `edit`, `edit_file`,
-  `search_replace`, `execute_command`, `use_mcp_tool`, `access_mcp_resource`, `browser_action`,
-  `switch_mode`, `new_task`, `ask_followup_question`, `attempt_completion`, `update_todo_list`,
-  `skill`, `run_slash_command` (experimental) and `generate_image` (experimental).
+  `search_replace`, `execute_command`, `use_mcp_tool`, `access_mcp_resource`, `switch_mode`,
+  `new_task`, `ask_followup_question`, `attempt_completion`, `update_todo_list`, `skill`,
+  `run_slash_command` (experimental) and `generate_image` (experimental), plus the aliases
+  `search_and_replace` → `edit` and `write_file` → `write_to_file`. This is the tool list of Roo
+  Code's final source; `browser_action` is not in it (see FR-036).
 - **FR-006**: Every proposed edit MUST be shown as a diff before approval and applied as one
   undoable change; a proposal touching several files MUST be reviewable and approvable as a batch.
 - **FR-007**: Command output MUST be streamed, truncated to the configured limits (500 lines by
@@ -479,19 +481,20 @@ and no tracked file referenced the old name.
 
 **Context mentions**
 
-- **FR-022**: The mentions `@file` (text, PDF, DOCX, and images for vision-capable models),
+- **FR-022**: The mentions `@file` (text, DOCX, and images for vision-capable models),
   `@folder/` (non-recursive), `@problems`, `@terminal`, `@<commit>`, `@git-changes` and `@url`
   MUST be supported with the documented content and ignore behaviour, and the `@` menu MUST hide
-  ignored and generated locations by default.
+  ignored and generated locations by default. PDF text extraction is **not included**: it needs a
+  PDF parser the platform does not bundle. The release notes MUST say so.
 
 **Auto-approve**
 
 - **FR-023**: Auto-approve MUST offer a master toggle with a keyboard shortcut and the categories:
   read (with an outside-workspace option), write (with outside-workspace and protected-files
   options and a write delay, default 1000 ms), execute (allowed and denied prefix lists, longest
-  prefix wins, deny wins ties, dangerous-substitution guard), browser, tool servers (requiring
-  per-tool always-allow), mode switching, subtasks, and follow-up default answers (timeout 1 to
-  300 seconds, default 60).
+  prefix wins, deny wins ties, dangerous-substitution guard), tool servers (requiring per-tool
+  always-allow), mode switching, subtasks, and follow-up default answers (timeout 1 to 300
+  seconds, default 60). These are the `alwaysAllow*` keys of Roo Code's final settings schema.
 - **FR-024**: Auto-approve choices MUST persist and MUST be included in settings export and import.
 
 **Providers and profiles**
@@ -500,11 +503,17 @@ and no tracked file referenced the old name.
   pin, switch from settings and from the chat, linking to modes, per-task persistence, a per-profile
   rate limit (default 0), a custom temperature (defaults 0.0; 0.3 for reasoning models; fixed 1.0
   for thinking-enabled models), a thinking budget and diff-editing settings.
-- **FR-026**: The documented providers MUST be supported: Anthropic, ChatGPT Plus/Pro, AWS Bedrock,
-  DeepSeek, Fireworks AI, Google Gemini, LM Studio, LiteLLM, Mistral AI, Moonshot, Ollama, OpenAI,
-  OpenAI Compatible, OpenRouter, Qwen Code CLI, Requesty, SambaNova, Vercel AI Gateway, GCP Vertex
-  AI, xAI, Z AI. The VS Code Language Model API provider has no equivalent outside VS Code and is
-  out of scope.
+- **FR-026**: Every `apiProvider` value in Roo Code's final source MUST be accepted on import, and
+  these MUST be usable as providers: `anthropic`, `openai-native` (OpenAI), `openai` (OpenAI
+  Compatible, including Azure), `openrouter`, `ollama`, `lmstudio`, `gemini`, `bedrock`, `vertex`,
+  `deepseek`, `mistral`, `moonshot`, `minimax`, `xai`, `zai`, `fireworks`, `sambanova`, `baseten`,
+  `requesty`, `unbound`, `litellm`, `vercel-ai-gateway` and `poe`. Not included, and said so in
+  the release notes: `vscode-lm` (no equivalent outside VS Code), `openai-codex` (ChatGPT
+  Plus/Pro), `gemini-cli` and `qwen-code` (each needs that product's own OAuth client and terms),
+  `fake-ai`, and the retired providers (`cerebras`, `chutes`, `deepinfra`, `doubao`,
+  `featherless`, `groq`, `huggingface`, `io-intelligence`, `roo`). A profile importing with one
+  of those keeps its name and settings but is marked as needing reconfiguration, which is what
+  Roo Code itself did with an unknown provider.
 - **FR-027**: Token usage, cost and context-window fill MUST be shown per task when the provider
   reports them.
 
@@ -555,17 +564,21 @@ and no tracked file referenced the old name.
 
 **Browser**
 
-- **FR-036**: `browser_action` MUST support launch, click, type, scroll, hover, resize and close
-  with screenshots returned, configurable viewport, screenshot quality and remote browser host,
-  requiring approval and a vision-capable model.
+- **FR-036**: Browser use is **not included**. Roo Code retired it before the shutdown: the final
+  source deprecates and strips the `browser` tool group, has no `browser_action` tool and no
+  browser settings keys, and the documentation page is empty. Per SC-007 the release notes MUST
+  say so. Revisit only on request.
 
 **Other**
 
 - **FR-037**: Enhance Prompt MUST rewrite the input using a customisable template with a
   `${userInput}` placeholder, optionally with the last 10 messages of history and a separate
   profile, and MUST be undoable.
-- **FR-038**: Image generation, custom tools, background editing and `run_slash_command` MUST be
-  available as experimental features that default to off.
+- **FR-038**: Image generation, background editing and `run_slash_command` (Roo Code's experiment
+  ids `imageGeneration`, `preventFocusDisruption`, `runSlashCommand`) MUST be available as
+  experimental features that default to off. Custom tools (`customTools`) are **not included**:
+  Roo Code's are JavaScript modules, and the IDE has no JavaScript engine without a dependency.
+  The release notes MUST say so.
 - **FR-039**: Everything MUST work in IDEs without Java support; Java-only enrichments degrade
   silently, as today.
 - **FR-040**: The existing DevBeer modules and the existing five assistant actions MUST keep
@@ -648,9 +661,9 @@ and no tracked file referenced the old name.
 - **Marketplace**: The listing must disclose that code is sent to the configured third-party
   provider; the assistant stays optional and off by default.
 
-## Reference: Roo Code behaviour model (verified 2026-10-22)
+## Reference: Roo Code behaviour model (verified 2026-10-22 against the docs, 2026-10-23 against the archived source)
 
-Facts below were read from the documentation and repository on the date above. The docs site
+Facts below were read from the documentation and repository on the dates above. The docs site
 redirects from docs.roocode.com to roocodeinc.github.io/Roo-Code; the `/getting-started/` link in
 the request is a section index that returns 404 — its pages are `installing`,
 `connecting-api-provider` and `your-first-task`.
@@ -662,7 +675,9 @@ the request is a section index that returns 404 — its pages are `installing`,
 | Editors | VS Code 1.84+, Cursor, VSCodium, Windsurf; no JetBrains version | getting-started/installing |
 | First task loop | Propose → Approve/Reject (with feedback) → result → next step → final result; reads show contents, writes show green/red diff, commands show the exact command | getting-started/your-first-task |
 | Modes | Code (read, edit, command, mcp); Ask (read, mcp); Architect (read, mcp, edit limited to Markdown); Debug (all four); Orchestrator (none directly, delegates via `new_task`). Switch by dropdown, `/slug`, Ctrl+. / ⌘+. cycling, or suggestion. Sticky model per mode; selection persists | basic-usage/using-modes |
-| Tools | Read: `read_file`, `list_files`, `read_command_output`; Search: `search_files`, `codebase_search`; Edit: `apply_diff`, `apply_patch`, `edit`, `edit_file`, `search_replace`, `write_to_file`; Command: `execute_command`, `run_slash_command` (experimental); MCP: `use_mcp_tool`, `access_mcp_resource`; Workflow: `switch_mode`, `new_task`, `ask_followup_question`, `attempt_completion`, `update_todo_list`, `skill`; Image: `generate_image`. Always available: `ask_followup_question`, `attempt_completion`, `switch_mode`, `new_task`. `browser_action` is named in auto-approve and the FAQ but absent from the final tool reference | advanced-usage/available-tools/tool-use-overview, basic-usage/how-tools-work |
+| Tools (final source) | Groups: read = `read_file`, `search_files`, `list_files`, `codebase_search`; edit = `apply_diff`, `write_to_file`, `generate_image`, `edit`, `search_replace`, `edit_file`, `apply_patch`; command = `execute_command`, `read_command_output`; mcp = `use_mcp_tool`, `access_mcp_resource`; modes = `switch_mode`, `new_task` (always available). Also always available: `ask_followup_question`, `attempt_completion`, `update_todo_list`, `run_slash_command`, `skill`. Aliases `write_file` → `write_to_file`, `search_and_replace` → `edit`. No `browser` group. Tool calls carry `nativeArgs` or `usedLegacyFormat`: native function calling with a legacy XML-tag fallback | src/shared/tools.ts, advanced-usage/available-tools/* |
+| Settings export (final source) | `{ providerProfiles: { currentApiConfigName, apiConfigs: { <name>: <provider settings + id> }, modeApiConfigs: { <modeSlug>: <profileId> } }, globalSettings: { … } }`; default file name `roo-code-settings.json`; import merges `apiConfigs` by name, validates each profile separately, strips an unknown `apiProvider` and keeps the profile, fails only when no profile is valid; `globalSettings.customModes` applied per slug | src/core/config/importExport.ts, packages/types/src/global-settings.ts |
+| Providers (final source) | Live: anthropic, bedrock, vertex, gemini, openai-native, openai (compatible/Azure), openrouter, ollama, lmstudio, deepseek, mistral, moonshot, minimax, xai, zai, fireworks, sambanova, baseten, requesty, unbound, litellm, vercel-ai-gateway, poe; OAuth-based: openai-codex, gemini-cli, qwen-code; internal: vscode-lm, fake-ai; retired: cerebras, chutes, deepinfra, doubao, featherless, groq, huggingface, io-intelligence, roo | packages/types/src/provider-settings.ts |
 | Custom modes | `.roomodes` (project, YAML or JSON) and global `custom_modes.yaml` (or `.json`); properties `slug`, `name`, `description`, `roleDefinition`, `whenToUse`, `customInstructions`, `groups` with `fileRegex` on edit; project replaces global by slug; export/import as YAML with `rulesFiles` | features/custom-modes |
 | Rules | Global `~/.roo/rules/`, `~/.roo/rules-{mode}/`; workspace `.roo/rules/`, `.roo/rules-{mode}/`, fallbacks `.roorules`, `.roorules-{mode}`, legacy `.clinerules`; `AGENTS.md`/`AGENT.md` via `roo-cline.useAgentRules` (default true); nine-step system-prompt order; recursive, case-insensitive sort, cache files skipped, symlink depth 5 | features/custom-instructions |
 | Ignore | `.rooignore`, gitignore syntax, self-protected, hot reload; blocks read/write/diff, filters listings and `@` mentions, blocks `cat`/`grep` style commands on ignored files; 🔒 marker; `showRooIgnoredFiles` default true | features/rooignore |
@@ -682,5 +697,8 @@ the request is a section index that returns 404 — its pages are `installing`,
 | Indexing | Tree-sitter blocks → embeddings → Qdrant; providers OpenAI, Gemini, Ollama, OpenAI Compatible, Mistral, Vercel AI Gateway, Bedrock, OpenRouter; blocks 100–1,000 chars; skip >1 MB and binaries; score threshold default 0.4; status colours; Clear Index Data | features/codebase-indexing |
 | Terminal | `execute_command`; inline terminal (recommended) or VS Code terminal; output limit 500 lines (20% head / 80% tail), character limit, compress progress bars; `roo-cline.commandExecutionTimeout` 0–600 default 0; `roo-cline.commandTimeoutAllowlist`; shell-integration timeout 15 s; command delay 0 ms | features/shell-integration |
 | Enhance Prompt | Wand icon; template with `${userInput}`; Test Enhancement; separate API profile option; "Include task history" uses last 10 messages | features/enhance-prompt |
-| Experimental | Custom Tools, Background Editing, Image Generation, Run Slash Command | features/experimental/experimental-features |
-| Not retrieved | The browser-use and fast-edits pages returned no body on the archived site; browser behaviour is taken from the auto-approve page and FAQ only | — |
+| Experimental | Custom Tools, Background Editing, Image Generation, Run Slash Command; experiment ids `customTools`, `preventFocusDisruption`, `imageGeneration`, `runSlashCommand` | features/experimental/experimental-features, packages/types/src/experiment.ts |
+| Support prompts | ENHANCE (`${userInput}`), CONDENSE, EXPLAIN, FIX, IMPROVE, ADD_TO_CONTEXT (`${filePath}`, `${startLine}`, `${endLine}`, `${selectedText}`, `${userInput}`, `${diagnosticText}`), TERMINAL_ADD_TO_CONTEXT, TERMINAL_FIX, TERMINAL_EXPLAIN (`${terminalContent}`), NEW_TASK | src/shared/support-prompt.ts |
+| Task history item | `id`, `number`, `ts`, `task`, `tokensIn`, `tokensOut`, `cacheWrites`, `cacheReads`, `totalCost`, `size`, `workspace`, `mode`, `apiConfigName`, `status` (active, completed, delegated), `rootTaskId`, `parentTaskId`, `childIds`, `awaitingChildId`, `completedByChildId`, `completionResultSummary` | packages/types/src/history.ts |
+| Browser use | Retired upstream before the shutdown: the `browser` group is deprecated and stripped from mode configs, there is no `browser_action` tool and no browser settings key, and the documentation page is empty. Excluded here (FR-036) | packages/types/src/mode.ts, src/shared/tools.ts |
+| Not retrieved | The fast-edits page returned no body on the archived site; diff strategy details come from the apply_diff page and src/shared/tools.ts | — |
